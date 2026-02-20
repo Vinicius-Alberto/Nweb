@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Organizador de Banca Conjunta</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>ORGANIZADOR DE BANCA CONJUNTA</h1>
+    <button id="toggle-theme">🌙</button>
+  </header>
+
+  <div class="main-container">
+    <div class="input-section">
+      <textarea id="entrada" placeholder="Formato: nome motivo valor [pago]\nEx: joao corte 40"></textarea>
+      <button onclick="gerarCards()">Adicionar Cards</button>
+    </div>
+
+    <input id="search-bar" placeholder="Pesquisar por nome...">
+
+    <div class="varal-container">
+      <h2>Apostas Registradas</h2>
+      <div id="varal"></div>
+      <div class="saldo" id="saldo-varal">Saldo: R$ 0,00</div>
+    </div>
+
+    <div class="board">
+      <div class="coluna" id="coluna-andamento">
+        <h2>Em andamento</h2>
+        <div class="cards-container" id="andamento"></div>
+        <div class="saldo" id="saldo-andamento">Saldo: R$ 0,00</div>
+      </div>
+
+      <div class="coluna" id="coluna-pagos">
+        <h2>Pagos</h2>
+        <div class="cards-container" id="pagos"></div>
+        <div class="saldo" id="saldo-pagos">Saldo: R$ 0,00</div>
+        <button id="export-pdf">Exportar Pagos como PDF</button>
+      </div>
+    </div>
+
+    <div id="total-lucro">Lucro/Prejuízo total: R$ 0,00</div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
