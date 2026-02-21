@@ -59,6 +59,23 @@ body.dark-mode header h1 {
   font-size: 24px;
   cursor: pointer;
   color: inherit;
+  padding: 0; /* Remove padding para o ícone caber justo */
+  width: 40px; /* Largura do botão ajustada ao ícone */
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* Opcional: deixa redondo como um botão moderno */
+  transition: background 0.3s; /* Suaviza mudanças */
+}
+
+#toggle-theme:hover {
+  background: rgba(0, 0, 0, 0.1); /* Hover effect para feedback */
+}
+
+#theme-icon {
+  width: 24px; /* Tamanho do ícone – ajuste para caber bem (ex: 24px para mobile-friendly) */
+  height: auto; /* Mantém proporção */
 }
 
 /* ================= INPUT + SEARCH ================= */

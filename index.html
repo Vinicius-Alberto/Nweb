@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
   <meta charset="UTF-8">
   <title>Organizador de Banca Conjunta</title>
@@ -8,12 +9,13 @@
 <body>
   <header>
     <h1>ORGANIZADOR DE BANCA CONJUNTA</h1>
-    <button id="toggle-theme">🌙</button>
+    <button id="toggle-theme"><img id="theme-icon" src="/Nweb/assets/moon.png" alt="Toggle Theme"> <!-- Começa no dark mode, ajuste conforme o default -->
+</button>
   </header>
 
   <div class="main-container">
     <div class="input-section">
-      <textarea id="entrada" placeholder="Formato: nome motivo valor [pago]\nEx: joao corte 40"></textarea>
+      <textarea id="entrada" placeholder="Formato: nick valor bonus, pode ser multiplos valores  ex: nick87 150 100 20 bigbass"></textarea>
       <button onclick="gerarCards()">Adicionar Cards</button>
     </div>
 

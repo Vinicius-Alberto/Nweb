@@ -451,7 +451,16 @@ document.getElementById("export-pdf").addEventListener("click", () => {
 function toggleTheme() {
   document.body.classList.toggle("dark-mode");
   const isDark = document.body.classList.contains("dark-mode");
-  document.getElementById("toggle-theme").textContent = isDark ? "☀️" : "🌙";
+  
+  // Muda o src da imagem com base no estado
+  const themeIcon = document.getElementById("theme-icon");
+  if (isDark) {
+    themeIcon.src = "./assets/moon.svg"; // Estado dark: mostra switch off/lua
+  } else {
+    themeIcon.src = "./assets/sun.svg"; // Estado light: mostra switch on/sol
+  }
+  
+  
   localStorage.setItem("theme", isDark ? "dark" : "light");
 }
 
@@ -459,10 +468,11 @@ function loadTheme() {
   const theme = localStorage.getItem("theme");
   if (theme === "dark") {
     document.body.classList.add("dark-mode");
-    document.getElementById("toggle-theme").textContent = "☀️";
+    document.getElementById("theme-icon").src = "./assets/moon.svg";
+  } else {
+    document.getElementById("theme-icon").src = "./assets/sun.svg";
   }
 }
-
 // Inicializa
 document.addEventListener("DOMContentLoaded", () => {
   configurarColunas();
