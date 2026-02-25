@@ -9,13 +9,14 @@
 <body>
   <header>
     <h1>ORGANIZADOR DE BANCA CONJUNTA</h1>
-    <button id="toggle-theme"><img id="theme-icon" src="/Nweb/assets/moon.png" alt="Toggle Theme"> <!-- Começa no dark mode, ajuste conforme o default -->
-</button>
+    <button id="toggle-theme"><img id="theme-icon" src="assets/moon.svg" alt="Alternar tema"></button>
   </header>
 
   <div class="main-container">
     <div class="input-section">
-      <textarea id="entrada" placeholder="Formato: nick valor bonus, pode ser multiplos valores  ex: nick87 150 100 20 bigbass"></textarea>
+      <textarea id="entrada" placeholder="Formatos: nick + valor + nome do bonus 
+      nick + valor + valor + nome do bonus 
+      nick + valor + valor + valor"></textarea>
       <button onclick="gerarCards()">Adicionar Cards</button>
     </div>
 

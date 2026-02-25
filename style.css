@@ -1,536 +1,359 @@
-/* ================= RESET ================= */
-
+/* ================= RESET E BASE ================= */
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  padding: 25px;
+  padding: 1.25rem;
   font-family: "Segoe UI", sans-serif;
-  background: #e0f2fe; /* azul claro do seu protótipo */
+  background: #e0f2fe;
   color: #1e293b;
   transition: background 0.3s, color 0.3s;
+  font-size: 16px;
 }
 
-body.dark-mode {
-  background: #111827; /* fundo escuro do seu print */
-  color: #e0e0e0;
-}
-
-/* ================= CABEÇALHO FIXO ================= */
-
+/* ================= CABEÇALHO ================= */
 header {
-  background: #bfdbfe; /* azul suave do topo */
-  padding: 1rem 2rem;
+  background: #bfdbfe;
+  padding: 0.8rem 1.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  margin: -25px -25px 30px -25px; /* compensa o padding do body */
-}
-
-body.dark-mode header {
-  background: #1e293b;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  box-shadow: 0 0.125rem 0.375rem rgba(0,0,0,0.08);
+  margin: -1.25rem -1.25rem 1.5625rem -1.25rem;
 }
 
 header h1 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 600;
   margin: 0;
   color: #1e40af;
 }
 
-body.dark-mode header h1 {
-  color: #93c5fd;
-}
-
+/* ================= TOGGLE THEME ================= */
 #toggle-theme {
   position: absolute;
   top: 50%;
-  right: 2rem;
+  right: 1.5rem;
   transform: translateY(-50%);
   background: none;
   border: none;
-  font-size: 24px;
   cursor: pointer;
-  color: inherit;
-  padding: 0; /* Remove padding para o ícone caber justo */
-  width: 40px; /* Largura do botão ajustada ao ícone */
-  height: 40px;
+  padding: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%; /* Opcional: deixa redondo como um botão moderno */
-  transition: background 0.3s; /* Suaviza mudanças */
 }
 
 #toggle-theme:hover {
-  background: rgba(0, 0, 0, 0.1); /* Hover effect para feedback */
+  background: rgba(0,0,0,0.08);
 }
 
 #theme-icon {
-  width: 24px; /* Tamanho do ícone – ajuste para caber bem (ex: 24px para mobile-friendly) */
-  height: auto; /* Mantém proporção */
+  width: 1.25rem;
+  height: 1.25rem;
+  object-fit: contain;
 }
 
-/* ================= INPUT + SEARCH ================= */
-
-.input-container {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto 2rem;
-}
-
+/* ================= INPUTS ================= */
 #entrada {
   width: 100%;
-  height: 160px;
+  height: 7.5rem;
   resize: vertical;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 0.625rem;
+  border-radius: 0.5rem;
   border: 1px solid #bfdbfe;
-  font-size: 14px;
-  outline: none;
+  font-size: 0.8125rem;
   background: white;
-  transition: border-color 0.3s, box-shadow 0.3s;
 }
-
-body.dark-mode #entrada {
-  background: #1e293b;
-  border-color: #374151;
-  color: #e0e0e0;
-}
-
-#entrada:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
-}
-
-button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  background: #3b82f6;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-button:hover {
-  background: #2563eb;
-}
-
-body.dark-mode button {
-  background: #60a5fa;
-}
-
-body.dark-mode button:hover {
-  background: #3b82f6;
-}
-
-/* ================= SEARCH BAR ================= */
 
 #search-bar {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
-  border-radius: 8px;
+  padding: 0.5rem;
+  margin-bottom: 0.9375rem;
+  border-radius: 0.375rem;
   border: 1px solid #bfdbfe;
-  font-size: 16px;
+  font-size: 0.875rem;
   background: white;
 }
 
-body.dark-mode #search-bar {
-  background: #1e293b;
-  border-color: #374151;
-  color: #e0e0e0;
+button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 /* ================= VARAL ================= */
-
 .varal-container {
-  margin-bottom: 35px;
-}
-
-.varal-container h2 {
-  margin-bottom: 10px;
-  color: inherit;
+  margin-bottom: 1.5625rem;
 }
 
 #varal {
   display: flex;
-  gap: 15px;
+  gap: 0.75rem;
   overflow-x: auto;
-  padding: 15px;
+  padding: 0.75rem;
   background: white;
-  border-radius: 14px;
-  box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
-  border: 1px solid #bfdbfe;
-  transition: background 0.3s, border 0.3s;
+  border-radius: 0.75rem;
+  box-shadow: inset 0 0.375rem 0.375rem rgba(0,0,0,0.04);
 }
 
-body.dark-mode #varal {
-  background: #1e293b;
-  border-color: #374151;
-}
-
-/* Scroll mais elegante */
-#varal::-webkit-scrollbar {
-  height: 8px;
-}
-
-#varal::-webkit-scrollbar-thumb {
-  background: #9ca3af;
-  border-radius: 4px;
-}
-
-body.dark-mode #varal::-webkit-scrollbar-thumb {
-  background: #4b5563;
-}
-
-/* ================= BOARD ================= */
-
+/* ================= BOARD E COLUNAS ================= */
 .board {
   display: flex;
-  gap: 25px;
+  gap: 1rem;
 }
 
 .coluna {
   flex: 1;
   background: white;
-  border-radius: 14px;
-  padding: 15px;
-  min-height: 420px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  min-height: 18.75rem;
+  box-shadow: 0 0.1875rem 0.625rem rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
-  transition: background 0.3s, border 0.3s;
-  border: 1px solid #bfdbfe;
 }
 
-body.dark-mode .coluna {
-  background: #1e293b;
-  border-color: #374151;
+#coluna-pagos .card .btn-retorno,
+#coluna-pagos .card .retorno-area {
+  display: none !important;
 }
 
-.coluna h2 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: inherit;
+/* Opcional: se quiser garantir que não ocupe espaço */
+#coluna-pagos .card .retorno-area {
+  height: 0;
+  margin: 0;
+  padding: 0;
 }
 
-/* Container interno dos cards - ocupa espaço horizontal */
+/* ================= CARDS CONTAINER ================= */
 .cards-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 15px;
-  align-content: start;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  align-content: flex-start;
   flex: 1;
 }
 
-/* ================= CARD ================= */
-
+/* ================= CARD – v2.4 ================= */
 .card {
-  width: 220px;
-  min-width: 220px;
+  width: 12rem;
+  min-width: 12rem;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
   background: white;
-  border-radius: 14px;
-  padding: 14px;
+  box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
+  cursor: grab;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-  transition: 0.2s ease, background 0.3s, border 0.3s;
-  cursor: grab;
-  position: relative;
-  border: 1px solid #e5e7eb;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
 }
 
-body.dark-mode .card {
-  background: #252525 !important;
-  border-color: #374151;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+.card.hidden{
+  display: none !important;
 }
 
 .card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-0.1875rem);
+  box-shadow: 0 0.375rem 1rem rgba(0,0,0,0.12);
 }
 
-.card.dragging {
-  opacity: 0.5;
+/* Cabeçalho em duas linhas */
+.card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.card.hidden {
-  display: none;
-}
-
-/* ================= CARD CONTEÚDO ================= */
-
-.card-top {
+.card-header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-}
-
-.card-top strong {
-  font-size: 15px;
-  color: inherit;
-}
-
-.card-id {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: #6b7280;
-  margin-bottom: 4px;
 }
 
-.acoes {
+.card-header-top .card-id {
+  font-weight: 600;
+}
+
+.card-header-top .acoes {
   display: flex;
-  gap: 6px;
+  gap: 0.375rem;
 }
 
-.acoes button {
-  background: none;
+.card-header-top button {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.875rem;
+  padding: 0;
+  border-radius: 0.375rem;
+  background: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
   border: none;
   cursor: pointer;
-  font-size: 14px;
-  padding: 2px;
-  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.prioridade-btn::before {
-  content: "⚠️";
+.card-header-top button:hover {
+  background: rgba(139, 92, 246, 0.3);
+  transform: scale(1.08);
 }
 
-.excluir::before {
-  content: "🗑️";
+.card-header-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
 }
 
 .motivo {
-  font-size: 13px;
+  font-size: 0.95rem;
   color: #4b5563;
-  margin-bottom: 6px;
-  min-height: 32px;
-}
-
-body.dark-mode .motivo {
-  color: #9ca3af;
-}
-
-.mandou,
-.banca-formada,
-.pagou,
-.metade,
-.rendeu {
-  font-size: 16px;
-  margin-bottom: 4px;
-}
-
-.banca-formada {
-  font-weight: bold;
-  font-size: 18px;
-  cursor: pointer;
-}
-
-/* INPUT DE EDIÇÃO */
-
-.banca-formada input {
-  width: 100%;
-  font-size: 16px;
-  padding: 4px;
-  border-radius: 6px;
-  border: 1px solid #9ca3af;
-  background: inherit;
-  color: inherit;
-}
-
-/* ================= PRIORIDADE ================= */
-
-.prioridade {
-  border: 2px solid #ff4d4d;
-}
-
-body.dark-mode .prioridade {
-  border-color: #ff6666;
-}
-
-/* ================= PAGO ================= */
-
-.pago {
-  background: #d4edda !important;
-}
-
-body.dark-mode .pago {
-  background: #064e3b !important;
-}
-
-.pago::after {
-  content: "✔";
-  position: absolute;
-  bottom: 8px;
-  right: 10px;
-  font-size: 18px;
-  color: #155724;
-}
-
-body.dark-mode .pago::after {
-  color: #6ee7b7;
-}
-
-.resultado {
-  margin-top: 6px;
-  font-size: 13px;
+  line-height: 1.3;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: center;
   font-weight: bold;
 }
 
-.lucro { color: #16a34a; }
-.prejuizo { color: #dc2626; }
-.neutro { color: #6b7280; }
-
-body.dark-mode .lucro { color: #34d399; }
-body.dark-mode .prejuizo { color: #f87171; }
-body.dark-mode .neutro { color: #9ca3af; }
-
-.card button {
-  margin-top: 10px;
-  background: #3b82f6;
-  color: white;
+/* Valores em coluna */
+.valores-iniciais .comanda-linha,
+.pagou-unica {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  padding: 0.25rem;
 }
 
-body.dark-mode .card button {
-  background: #60a5fa;
+.valores-iniciais .comanda-linha span:first-child,
+.pagou-unica span:first-child {
+  font-weight: 500;
+  color: #475569;
+  flex: 1;
+  text-align: left;
 }
 
-/* ================= SALDO ================= */
-
-.saldo {
-  margin-top: auto;
-  padding-top: 10px;
-  border-top: 1px solid #e5e7eb;
-  font-size: 16px;
-  font-weight: bold;
-  color: #1e293b;
+.valores-iniciais .comanda-linha span:last-child,
+.pagou-unica span:last-child {
+  font-weight: 600;
   text-align: right;
-  transition: color 0.3s, border-top 0.3s;
 }
 
-body.dark-mode .saldo {
-  color: #e0e0e0;
-  border-top: 1px solid #374151;
+.pagou-unica {
+  font-weight: 700;
+  padding: 0.5rem 0;
+  border-top: 1px dashed #cbd5e1;
+  border-bottom: 1px dashed #cbd5e1;
+  margin: 0.4rem 0 0.6rem 0;
 }
 
-/* ================= TOTAL LUCRO ================= */
+/* Área Resultado + Total + Metade */
+.resultado-total-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.resultado-total-area .linha-resultado {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.resultado-total-area .linha-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+}
+
+.resultado-total-area .linha-metade {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.8125rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.resultado-total-area .prejuizo  { color: #ef4444; }
+.resultado-total-area .lucro     { color: #10b981; }
+.resultado-total-area .neutro    { color: #6b7280; }
+
+/* Esconde quando não pago */
+.card:not(.pago) .resultado-total-area,
+.card.pago [data-pagoucentavos="0"] .resultado-total-area {
+  display: none;
+}
+
+/* Pesquisa */
+.card.hidden {
+  display: none !important;
+}
+
+/* ================= DARK MODE ================= */
+body.dark-mode {
+  background: linear-gradient(135deg, #0a0a0f, #111118);
+  color: #fffffe;
+}
+
+body.dark-mode header { background: linear-gradient(to right, #111118, #1f1f2e); }
+body.dark-mode header h1 { color: #e879f9; }
+body.dark-mode #entrada,
+body.dark-mode #search-bar { background: #1f1f2e; border-color: #374151; color: #d1d5db; }
+body.dark-mode button { background: #c026d3; }
+body.dark-mode #varal,
+body.dark-mode .coluna { background: #1a1a26; border: 1px solid #2d1b2e; box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.4); }
+body.dark-mode .card { background: linear-gradient(145deg, #1a1a26, #2d1b2e) !important; border: 1px solid #4a1d38; box-shadow: 0 0.25rem 0.75rem rgba(126, 34, 86, 0.15); }
+body.dark-mode .motivo,
+body.dark-mode .card-header { border-bottom: 1px solid #4a1d38; }
+body.dark-mode .card-header-name { color: #f1f5f9; }
+body.dark-mode .card-header-top { color: #94a3b8; }
+body.dark-mode .card-header-top button { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+body.dark-mode .resultado-total-area { border-top-color: #4a1d38; }
+body.dark-mode .valores-iniciais span:first-child,
+body.dark-mode .resultado-total-area .linha-metade { color: #94a3b8; }
+body.dark-mode .pagou-unica { border-color: #4a1d38; }
+
+/* ================= TOTAL E SALDO ================= */
+.saldo {
+  font-size: 0.875rem;
+  font-weight: bold;
+  text-align: right;
+  margin-top: 0.5rem;
+}
 
 #total-lucro {
-  margin-top: 20px;
-  padding: 15px;
+  margin-top: 0.9375rem;
+  padding: 0.625rem;
   background: white;
-  border-radius: 14px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  border-radius: 0.625rem;
   text-align: center;
-  font-size: 18px;
+  font-size: 0.9375rem;
   font-weight: bold;
-  transition: background 0.3s, color 0.3s;
 }
 
 body.dark-mode #total-lucro {
-  background: #1e293b;
-  color: #e0e0e0;
+  background: #1a1a26;
 }
 
-/* ================= EXPORTAR PDF (agora dentro da coluna Pagos) ================= */
-
-#export-pdf {
-  margin-top: 1rem;
-  padding: 10px 20px;
-  background: #10b981;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-  text-align: center;
-}
-
-#export-pdf:hover {
-  background: #059669;
-}
-
-body.dark-mode #export-pdf {
-  background: #059669;
-}
-
-body.dark-mode #export-pdf:hover {
-  background: #047857;
-}
-
-/* ================= OUTROS AJUSTES ================= */
-
-/* Esconder botão Pagou? no varal */
-.varal-container .retorno-area {
-  display: none;
-}
-
-/* Alerta sem pagou */
-.alerta-sem-pagou {
-  background: #fff3cd;
-  border: 1px solid #ffeeba;
-  border-radius: 6px;
-  padding: 8px 10px;
-  margin-top: 10px;
-  color: #856404;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-body.dark-mode .alerta-sem-pagou {
-  background: #664d03;
-  border-color: #997404;
-  color: #ffecb5;
-}
-
-.alerta-sem-pagou input[type="checkbox"] {
-  margin: 0;
-}
-
-/* Metade só visível em pagos */
-.metade {
-  display: none;
-  font-size: 15px;
-  margin-top: 8px;
-  padding-top: 6px;
-  border-top: 1px dashed #9ca3af;
-  font-weight: 600;
-}
-
-.card.pago .metade {
-  display: block;
-  color: #155724;
-  background: #e6ffe6;
-  padding: 8px;
-  border-radius: 6px;
-}
-
-body.dark-mode .card.pago .metade {
-  color: #d4edda;
-  background: #064e3b;
-}
-
-.pagou {
-  font-weight: bold;
-  margin-top: 4px;
-}
-
-.rendeu {
-  margin-top: 6px;
-  font-size: 14px;
-}
+.lucro { color: #10b981; }
+.prejuizo { color: #ef4444; }
+.neutro { color: #6b7280; }

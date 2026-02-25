@@ -1,4 +1,5 @@
-// Organizador de Banca Conjunta - versão alinhada ao seu protótipo (cards 220px, ocupação horizontal)
+// Organizador de Banca Conjunta - versão 2026.7 (Precisão total de centavos + parseValor corrigido)
+// Pesquisa corrigida em 25/02/2026 para funcionar com novo layout do card
 
 const varal = document.getElementById("varal");
 const andamento = document.getElementById("andamento");
@@ -12,100 +13,161 @@ const searchBar = document.getElementById("search-bar");
 
 let proximoId = parseInt(localStorage.getItem("proximoId") || "1");
 
-// -------------------- UTILIDADES --------------------
+// ────────────────────────────────────────────────
+// UTILIDADES
+// ────────────────────────────────────────────────
 
 function gerarCorPastel() {
   const hue = Math.floor(Math.random() * 360);
-  return `hsl(${hue}, 70%, 85%)`;
+  const saturation = 50 + Math.floor(Math.random() * 30);
+  const lightness = 80 + Math.floor(Math.random() * 15);
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
+function ajustarClaridade(hslString, percentMaisClaro = 10) {
+  const match = hslString.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+  if (!match) return hslString;
+  let [_, h, s, l] = match.map(Number);
+  l = Math.min(95, l + percentMaisClaro);
+  return `hsl(${h}, ${s}%, ${l}%)`;
 }
 
 function formatarReal(valor) {
-  return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const numero = Number(Number(valor).toFixed(2));
+  if (isNaN(numero)) return "R$ 0,00";
+  return numero.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 }
 
+function parseValor(str) {
+  if (typeof str !== 'string' || !str.trim()) return 0;
+
+  let s = str
+    .replace(/R\$\s*/gi, '')
+    .replace(/\u00A0/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  s = s.replace(/\./g, '').replace(',', '.');
+  s = s.replace(/[^0-9.-]/g, '');
+
+  const num = parseFloat(s);
+  return isNaN(num) ? 0 : num;
+}
+
+function toCentavos(reais) {
+  return Math.round(reais * 100);
+}
+
+function fromCentavos(centavos) {
+  return centavos / 100;
+}
+
+// ────────────────────────────────────────────────
+// CÁLCULOS
+// ────────────────────────────────────────────────
+
 function calcularSaldo(container) {
-  let total = 0;
+  let totalCentavos = 0;
   container.querySelectorAll(".card:not(.hidden)").forEach(card => {
-    const valorTexto = card.querySelector(".banca-formada")?.textContent
-      ?.trim()
-      ?.replace("Banca formada:", "")
-      ?.replace(/[^\d.,]/g, '')
-      ?.replace(',', '.') || "0";
-    total += parseFloat(valorTexto) || 0;
+    let valorTexto;
+
+    if (container.id === "pagos") {
+      const pagouCentavos = Number(card.dataset.pagouCentavos) || 0;
+      if (pagouCentavos > 0) {
+        valorTexto = formatarReal(fromCentavos(pagouCentavos));
+      } else {
+        valorTexto = "0";
+      }
+    } else {
+      valorTexto = card.querySelector(".banca-valor")?.textContent || "0";
+    }
+
+    totalCentavos += toCentavos(parseValor(valorTexto));
   });
-  return total;
+  return fromCentavos(totalCentavos);
 }
 
 function calcularTotalLucro() {
-  let totalLucro = 0;
-  document.querySelectorAll(".card:not(.hidden)").forEach(card => {
-    if (card.parentElement.id === "varal") return;
-    if (!card.dataset.pagou || parseFloat(card.dataset.pagou) === 0) return;
-
-    const mandouEl = card.querySelector(".mandou");
-    if (!mandouEl) return;
-
-    const mandouTexto = mandouEl.textContent
-      .trim()
-      .replace("Mandou:", "")
-      .replace(/[^\d.,]/g, '')
-      .replace(',', '.');
-    const mandou = parseFloat(mandouTexto) || 0;
-    const pagou = parseFloat(card.dataset.pagou) || 0;
-    const lucro = pagou - mandou * 2;
-    totalLucro += lucro;
+  let totalLucroCentavos = 0;
+  document.querySelectorAll("#andamento .card, #pagos .card").forEach(card => {
+    const resultadoEl = card.querySelector(".valor-resultado");
+    if (resultadoEl && resultadoEl.parentElement.style.display !== "none") {
+      totalLucroCentavos += toCentavos(parseValor(resultadoEl.textContent));
+    }
   });
-  return totalLucro;
+  return fromCentavos(totalLucroCentavos);
 }
 
 function atualizarSaldos() {
-  saldoVaral.textContent = `Saldo: ${formatarReal(calcularSaldo(varal))}`;
-  saldoAndamento.textContent = `Saldo: ${formatarReal(calcularSaldo(andamento))}`;
-  saldoPagos.textContent = `Saldo: ${formatarReal(calcularSaldo(pagos))}`;
+  if (saldoVaral) saldoVaral.textContent = `Saldo: ${formatarReal(calcularSaldo(varal))}`;
+  if (saldoAndamento) saldoAndamento.textContent = `Saldo: ${formatarReal(calcularSaldo(andamento))}`;
+  if (saldoPagos) saldoPagos.textContent = `Saldo: ${formatarReal(calcularSaldo(pagos))}`;
 
   const totalLucro = calcularTotalLucro();
-  totalLucroDiv.textContent = `Lucro/Prejuízo total: ${formatarReal(totalLucro)}`;
-  totalLucroDiv.style.color = totalLucro > 0 ? '#16a34a' : (totalLucro < 0 ? '#dc2626' : '#6b7280');
+  if (totalLucroDiv) {
+    totalLucroDiv.textContent = `Lucro/Prejuízo total: ${formatarReal(totalLucro)}`;
+    totalLucroDiv.style.color = totalLucro > 0 ? '#16a34a' : (totalLucro < 0 ? '#dc2626' : '#6b7280');
+  }
 }
 
-// -------------------- PESQUISA --------------------
+// ────────────────────────────────────────────────
+// PESQUISA – corrigida para novo layout do card
+// ────────────────────────────────────────────────
 
-searchBar.addEventListener("keyup", () => {
-  const termo = searchBar.value.toLowerCase().trim();
-  document.querySelectorAll(".card").forEach(card => {
-    const nome = card.querySelector("strong")?.textContent?.toLowerCase() || "";
-    card.classList.toggle("hidden", !nome.includes(termo));
+if (searchBar) {
+  searchBar.addEventListener("input", () => {   // ← "input" é melhor que "keyup" (pega colar, voz, etc)
+    const termo = searchBar.value.toLowerCase().trim();
+
+    document.querySelectorAll(".card").forEach(card => {
+      const nomeEl     = card.querySelector(".card-header-name");
+      const motivoEl   = card.querySelector(".motivo");
+      const idEl       = card.querySelector(".card-id");
+      const resultadoEl = card.querySelector(".valor-resultado");
+
+      const textos = [
+        nomeEl?.textContent || "",
+        motivoEl?.textContent || "",
+        idEl?.textContent || "",
+        resultadoEl?.textContent || ""
+      ].join(" ").toLowerCase();
+
+      const visivel = textos.includes(termo);
+      card.classList.toggle("hidden", !visivel);
+    });
+
+    atualizarSaldos();
   });
-  atualizarSaldos();
-});
+}
 
-// -------------------- PARSER --------------------
+// ────────────────────────────────────────────────
+// PARSER
+// ────────────────────────────────────────────────
 
 function extrairDados(linha) {
-  const partes = linha.trim().split(/\s+/);
-  if (partes.length < 2) return null;
+  const match = linha.match(/^(.+?)\s+([\d.,\s]+)(?:\s+(pago))?\s*(.*)$/i);
+  if (!match) return null;
 
-  const nome = partes[0];
-  let motivo = "";
-  let numeros = [];
+  const nome = match[1].trim();
+  const numerosStr = match[2];
+  const pago = !!match[3];
+  const motivo = (match[4] || "Não informado").trim();
 
-  partes.slice(1).forEach(p => {
-    if (/^\d+[.,]?\d*$/.test(p)) {
-      numeros.push(parseFloat(p.replace(",", ".")));
-    } else if (!["pago"].includes(p.toLowerCase())) {
-      motivo += p + " ";
-    }
-  });
-
+  const numeros = numerosStr.match(/\d+[.,]?\d*/g)?.map(n => parseValor(n)) || [];
   const total = numeros.reduce((acc, n) => acc + n, 0);
-  const pago = linha.toLowerCase().includes("pago");
 
   if (total === 0) return null;
 
-  return { nome, motivo: motivo.trim() || "Não informado", total, pago };
+  return { nome, motivo, total, pago };
 }
 
-// -------------------- PERSISTÊNCIA --------------------
+// ────────────────────────────────────────────────
+// PERSISTÊNCIA
+// ────────────────────────────────────────────────
 
 function salvarEstado() {
   const estado = {
@@ -119,24 +181,21 @@ function salvarEstado() {
 
 function extrairDadosDoCard(card) {
   const id = card.dataset.id;
-  const nome = card.querySelector("strong")?.textContent || "";
-  const motivo = card.querySelector(".motivo")?.textContent || "Não informado";
+  const nome = card.querySelector(".card-header-name")?.textContent?.trim() || "";  // ← aqui estava o erro
+  const motivo = card.querySelector(".motivo")?.textContent?.trim() || "Não informado";
 
-  const mandouEl = card.querySelector(".mandou");
-  const mandou = mandouEl ? parseFloat(mandouEl.textContent.replace("Mandou:", "").replace(/[^\d.,]/g, '').replace(',', '.')) || 0 : 0;
+  const mandouCentavos = toCentavos(parseValor(card.querySelector(".mandou-valor")?.textContent || "0"));
+  const bancaCentavos  = toCentavos(parseValor(card.querySelector(".banca-valor")?.textContent || "0"));
+  const pagouCentavos  = Number(card.dataset.pagouCentavos) || 0;
 
-  const bancaEl = card.querySelector(".banca-formada");
-  const banca = bancaEl ? parseFloat(bancaEl.textContent.replace("Banca formada:", "").replace(/[^\d.,]/g, '').replace(',', '.')) || 0 : 0;
-
-  const pagou = parseFloat(card.dataset.pagou) || 0;
   const pago = card.classList.contains("pago");
   const prioridade = card.classList.contains("prioridade");
-  const background = card.style.backgroundColor;
-  const resultado = card.querySelector(".resultado")?.innerHTML || "";
+  const corOriginal = card.dataset.corOriginal || '';
+  const resultado = card.querySelector(".valor-resultado")?.textContent || "";
   const rendeu = card.querySelector(".rendeu")?.innerHTML || "";
   const alertHidden = card.dataset.alertHidden === "true";
 
-  return { id, nome, motivo, mandou, banca, pagou, pago, prioridade, background, resultado, rendeu, alertHidden };
+  return { id, nome, motivo, mandouCentavos, bancaCentavos, pagouCentavos, pago, prioridade, corOriginal, resultado, rendeu, alertHidden };
 }
 
 function carregarEstado() {
@@ -154,10 +213,9 @@ function carregarEstado() {
       const card = criarCard(dados);
       if (dados.prioridade) card.classList.add("prioridade");
       if (dados.pago) card.classList.add("pago");
-      card.style.backgroundColor = dados.background;
-      card.querySelector(".resultado").innerHTML = dados.resultado || "";
-      card.querySelector(".rendeu").innerHTML = dados.rendeu || "";
-      card.dataset.pagou = dados.pagou;
+      if (dados.corOriginal) card.dataset.corOriginal = dados.corOriginal;
+      atualizarCorCard(card);
+      card.dataset.pagouCentavos = dados.pagouCentavos || "0";
       card.dataset.alertHidden = dados.alertHidden ? "true" : "false";
       card.dataset.id = dados.id;
       container.appendChild(card);
@@ -167,7 +225,9 @@ function carregarEstado() {
   atualizarSaldos();
 }
 
-// -------------------- ADICIONAR CARDS --------------------
+// ────────────────────────────────────────────────
+// ADICIONAR CARDS
+// ────────────────────────────────────────────────
 
 function gerarCards() {
   const texto = document.getElementById("entrada").value;
@@ -177,8 +237,8 @@ function gerarCards() {
     const dados = extrairDados(linha);
     if (!dados) return;
 
-    dados.mandou = dados.total;
-    dados.banca = dados.total * 2;
+    dados.mandouCentavos = toCentavos(dados.total);
+    dados.bancaCentavos = dados.mandouCentavos * 2;
     dados.id = proximoId++;
     const card = criarCard(dados);
 
@@ -190,126 +250,185 @@ function gerarCards() {
     }
   });
 
+  document.getElementById("entrada").value = "";
   atualizarSaldos();
   salvarEstado();
 }
 
-// -------------------- CRIAR CARD --------------------
+// ────────────────────────────────────────────────
+// CRIAR CARD (seu layout atual mantido)
+// ────────────────────────────────────────────────
 
 function criarCard(dados) {
-  const mandou = dados.mandou || dados.total;
-  let banca = dados.banca || mandou * 2;
-  let pagou = dados.pagou || 0;
+  let mandouCentavos = dados.mandouCentavos || toCentavos(dados.mandou || dados.total || 0);
+  let bancaCentavos  = dados.bancaCentavos  || mandouCentavos * 2;
+  let pagouCentavos  = dados.pagouCentavos  || 0;
+
+  const mandou = fromCentavos(mandouCentavos);
+  const banca  = fromCentavos(bancaCentavos);
+  const pagou  = fromCentavos(pagouCentavos);
 
   const card = document.createElement("div");
   card.classList.add("card");
-  card.style.backgroundColor = dados.background || gerarCorPastel();
   card.draggable = true;
-  card.dataset.pagou = pagou;
+  card.dataset.pagouCentavos = pagouCentavos;
   card.dataset.id = dados.id;
 
+  const corBase = gerarCorPastel();
+  card.dataset.corOriginal = corBase;
+  atualizarCorCard(card);
+
   card.innerHTML = `
-    <div class="card-id">#${dados.id.toString().padStart(3, '0')}</div>
-    <div class="card-top">
-      <strong>${dados.nome}</strong>
-      <div class="acoes">
-        <button class="prioridade-btn"></button>
-        <button class="excluir"></button>
+    <div class="card-header">
+      <div class="card-header-top">
+        <div class="card-id">#${(dados.id || 0).toString().padStart(3, '0')}</div>
+        <div class="acoes">
+          <button class="prioridade-btn" title="Prioridade">⭐</button>
+          <button class="excluir" title="Excluir">🗑️</button>
+        </div>
+      </div>
+      <div class="card-header-name">${dados.nome || 'Nome'}</div>
+    </div>
+
+    <div class="motivo">${(dados.motivo || 'Não informado').toUpperCase()}</div>
+
+    <div class="valores-iniciais">
+      <div class="comanda-linha">
+        <span>Mandou:</span>
+        <span class="mandou-valor">${formatarReal(mandou)}</span>
+      </div>
+      <div class="comanda-linha">
+        <span>Banca:</span>
+        <span class="banca-valor">${formatarReal(banca)}</span>
+      </div>
+      <div class="pagou-unica comanda-linha">
+        <span>Pagou:</span>
+        <span class="pagou-valor">${formatarReal(pagou)}</span>
       </div>
     </div>
 
-    <div class="motivo">${dados.motivo}</div>
-    <div class="mandou">Mandou: ${formatarReal(mandou)}</div>
-    <div class="banca-formada">Banca formada: ${formatarReal(banca)}</div>
-    <div class="pagou">Pagou: ${formatarReal(pagou)}</div>
-    <div class="metade"></div>
-    <div class="rendeu"></div>
+    <div class="resultado-total-area">
+      <div class="linha-resultado">
+        <span>Resultado:</span>
+        <span class="valor-resultado"></span>
+      </div>
+      <div class="linha-total">
+        <span>TOTAL:</span>
+        <strong class="total-valor">${formatarReal(pagou)}</strong>
+      </div>
+      <div class="linha-metade">
+        <span>Metade:</span>
+        <span class="metade-valor"></span>
+      </div>
+    </div>
 
     <div class="retorno-area">
       <button class="btn-retorno">Pagou?</button>
     </div>
-
-    <div class="resultado">${dados.resultado || ""}</div>
   `;
 
-  const resultadoDiv = card.querySelector(".resultado");
-  const btnRetorno = card.querySelector(".btn-retorno");
-  const bancaDiv = card.querySelector(".banca-formada");
-  const pagouDiv = card.querySelector(".pagou");
-  const metadeDiv = card.querySelector(".metade");
-  const rendeuDiv = card.querySelector(".rendeu");
+  // Referências aos elementos dinâmicos
+  const pagouValorEl     = card.querySelector(".pagou-valor");
+  const valorResultadoEl = card.querySelector(".valor-resultado");
+  const totalValorEl     = card.querySelector(".total-valor");
+  const metadeValorEl    = card.querySelector(".metade-valor");
+  const btnRetorno       = card.querySelector(".btn-retorno");
 
   function atualizarMetade() {
-    if (pagou > 0) {
-      const metade = pagou / 2;
-      metadeDiv.innerHTML = `<strong>Metade pra cada:</strong> ${formatarReal(metade)}`;
+    if (!metadeValorEl) return;
+    if (pagouCentavos > 0) {
+      const metade = fromCentavos(Math.round(pagouCentavos / 2));
+      metadeValorEl.textContent = formatarReal(metade);
+    } else {
+      metadeValorEl.textContent = "";
     }
   }
 
+  function atualizarResultadoELucro() {
+    if (pagouCentavos <= 0 || !valorResultadoEl) return;
+
+    const lucroCentavos = pagouCentavos - (mandouCentavos * 2);
+    const lucroReais    = fromCentavos(lucroCentavos);
+
+    let texto = lucroReais > 0 ? `+${formatarReal(lucroReais)}` : formatarReal(lucroReais);
+    let classe = lucroReais > 0 ? 'lucro' : (lucroReais < 0 ? 'prejuizo' : 'neutro');
+
+    valorResultadoEl.textContent = texto;
+    valorResultadoEl.className = `valor-resultado ${classe}`;
+  }
+
+  function atualizarTotalCard() {
+    if (totalValorEl) {
+      totalValorEl.textContent = formatarReal(fromCentavos(pagouCentavos));
+    }
+  }
+
+  // Inicializa valores
   atualizarMetade();
+  atualizarResultadoELucro();
+  atualizarTotalCard();
 
-  // Editar banca formada
-  bancaDiv.addEventListener("click", () => {
-    const input = document.createElement("input");
-    input.type = "text";
-    input.value = bancaDiv.textContent.replace("Banca formada:", "").trim().replace(/[^\d.,]/g, '').replace(',', '.');
-    bancaDiv.innerHTML = "Banca formada: ";
-    bancaDiv.appendChild(input);
-    input.focus();
+  // ─── Edição da Banca ───
+  const bancaValorEl = card.querySelector(".banca-valor");
+  if (bancaValorEl) {
+    bancaValorEl.addEventListener("click", () => {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = bancaValorEl.textContent?.trim() || '';
+      const parent = bancaValorEl.parentElement;
+      parent.innerHTML = "<span>Banca formada:</span> ";
+      parent.appendChild(input);
+      input.focus();
 
-    input.addEventListener("blur", () => {
-      let novoValor = parseFloat(input.value.replace(",", "."));
-      if (isNaN(novoValor)) novoValor = banca;
-      banca = novoValor;
-      bancaDiv.textContent = `Banca formada: ${formatarReal(novoValor)}`;
+      input.addEventListener("blur", () => {
+        let novo = parseValor(input.value);
+        if (isNaN(novo) || novo < 0) novo = fromCentavos(bancaCentavos);
+        bancaCentavos = toCentavos(novo);
+        parent.innerHTML = `<span>Banca formada:</span> <span class="banca-valor">${formatarReal(fromCentavos(bancaCentavos))}</span>`;
+        atualizarResultadoELucro();
+        atualizarSaldos();
+        salvarEstado();
+      });
+
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter") input.blur();
+      });
+    });
+  }
+
+  // ─── Botão Pagou ───
+  if (btnRetorno) {
+    btnRetorno.addEventListener("click", () => {
+      const valorDigitado = prompt("Quanto pagou essa banca?");
+      if (!valorDigitado) return;
+
+      const valorRecebido = parseValor(valorDigitado);
+      if (isNaN(valorRecebido) || valorRecebido <= 0) {
+        alert("Valor inválido.");
+        return;
+      }
+
+      pagouCentavos = toCentavos(valorRecebido);
+      card.dataset.pagouCentavos = pagouCentavos;
+
+      if (pagouValorEl) pagouValorEl.textContent = formatarReal(fromCentavos(pagouCentavos));
+
+      atualizarMetade();
+      atualizarResultadoELucro();
+      atualizarTotalCard();
       atualizarSaldos();
       salvarEstado();
     });
-
-    input.addEventListener("keydown", e => {
-      if (e.key === "Enter") input.blur();
-    });
-  });
-
-  // Informar quanto pagou
-  btnRetorno.addEventListener("click", () => {
-    const valorDigitado = prompt("Quanto pagou essa banca?");
-
-    if (!valorDigitado) return;
-
-    const valorRecebido = parseFloat(valorDigitado.replace(",", "."));
-
-    if (isNaN(valorRecebido)) {
-      alert("Valor inválido.");
-      return;
-    }
-
-    pagou = valorRecebido;
-    card.dataset.pagou = pagou;
-
-    pagouDiv.textContent = `Pagou: ${formatarReal(pagou)}`;
-    atualizarMetade();
-
-    const lucro = pagou - banca;
-
-    rendeuDiv.innerHTML = lucro > 0
-      ? `<span class="lucro">Resultado: +${formatarReal(lucro)}</span>`
-      : lucro < 0
-        ? `<span class="prejuizo">Resultado: ${formatarReal(lucro)}</span>`
-        : `<span class="neutro">Resultado: ${formatarReal(lucro)}</span>`;
-
-    atualizarSaldos();
-    salvarEstado();
-  });
+  }
 
   // Prioridade
-  card.querySelector(".prioridade-btn").addEventListener("click", () => {
+  card.querySelector(".prioridade-btn")?.addEventListener("click", () => {
     card.classList.toggle("prioridade");
     salvarEstado();
   });
 
   // Excluir
-  card.querySelector(".excluir").addEventListener("click", () => {
+  card.querySelector(".excluir")?.addEventListener("click", () => {
     if (confirm("Tem certeza que deseja excluir este card?")) {
       card.remove();
       atualizarSaldos();
@@ -317,7 +436,7 @@ function criarCard(dados) {
     }
   });
 
-  // Duplo clique para mover + alerta
+  // Duplo clique para mover
   card.addEventListener("dblclick", () => {
     const parentId = card.parentElement.id;
 
@@ -328,8 +447,10 @@ function criarCard(dados) {
       card.classList.remove("prioridade");
       pagos.appendChild(card);
       atualizarMetade();
+      atualizarResultadoELucro();
+      atualizarTotalCard();
 
-      if (pagou === 0 && card.dataset.alertHidden !== "true") {
+      if (pagouCentavos === 0 && card.dataset.alertHidden !== "true") {
         const alerta = document.createElement("div");
         alerta.className = "alerta-sem-pagou";
         alerta.innerHTML = `
@@ -339,7 +460,7 @@ function criarCard(dados) {
         `;
         card.appendChild(alerta);
 
-        alerta.querySelector("input").addEventListener("change", (e) => {
+        alerta.querySelector("input").addEventListener("change", e => {
           if (e.target.checked) {
             card.dataset.alertHidden = "true";
             alerta.remove();
@@ -358,14 +479,42 @@ function criarCard(dados) {
 
   adicionarDragAndDrop(card);
 
-  if (card.classList.contains("pago")) {
-    atualizarMetade();
-  }
-
   return card;
 }
 
-// -------------------- DRAG & DROP --------------------
+// ────────────────────────────────────────────────
+// COR DINÂMICA AO MUDAR TEMA
+// ────────────────────────────────────────────────
+
+function atualizarCorCard(card) {
+  const corOriginal = card.dataset.corOriginal;
+  if (!corOriginal) return;
+
+  let bgStyle, borderColor;
+
+  if (document.body.classList.contains("dark-mode")) {
+    const match = corOriginal.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+    if (match) {
+      const hue = match[1];
+      bgStyle = `linear-gradient(145deg, hsl(${hue}, 55%, 28%), hsl(${hue}, 65%, 42%))`;
+      borderColor = `hsl(${hue}, 60%, 35%)`;
+    } else {
+      bgStyle = `linear-gradient(145deg, #1e1e2e, #2d1b2e)`;
+      borderColor = '#4a1d38';
+    }
+  } else {
+    const corClara = ajustarClaridade(corOriginal, 10);
+    bgStyle = `linear-gradient(135deg, ${corOriginal}, ${corClara})`;
+    borderColor = '#e5e7eb';
+  }
+
+  card.style.background = bgStyle;
+  card.style.borderColor = borderColor;
+}
+
+// ────────────────────────────────────────────────
+// DRAG & DROP
+// ────────────────────────────────────────────────
 
 function configurarColunas() {
   [varal, andamento, pagos].forEach(coluna => {
@@ -379,13 +528,8 @@ function configurarColunas() {
         if (coluna.id === "pagos") {
           card.classList.add("pago");
           card.classList.remove("prioridade");
-          const pagou = parseFloat(card.dataset.pagou) || 0;
-          if (pagou > 0) {
-            const metadeDiv = card.querySelector(".metade");
-            const metade = pagou / 2;
-            metadeDiv.innerHTML = `<strong>Metade pra cada:</strong> ${formatarReal(metade)}`;
-          }
-          if (pagou === 0 && card.dataset.alertHidden !== "true") {
+          atualizarCorCard(card);
+          if (Number(card.dataset.pagouCentavos) === 0 && card.dataset.alertHidden !== "true") {
             const alerta = document.createElement("div");
             alerta.className = "alerta-sem-pagou";
             alerta.innerHTML = `
@@ -395,7 +539,7 @@ function configurarColunas() {
             `;
             card.appendChild(alerta);
 
-            alerta.querySelector("input").addEventListener("change", (e) => {
+            alerta.querySelector("input").addEventListener("change", e => {
               if (e.target.checked) {
                 card.dataset.alertHidden = "true";
                 alerta.remove();
@@ -418,65 +562,99 @@ function adicionarDragAndDrop(card) {
   card.addEventListener("dragend", () => card.classList.remove("dragging"));
 }
 
-// -------------------- EXPORTAR PDF --------------------
+// ────────────────────────────────────────────────
+// EXPORT PDF
+// ────────────────────────────────────────────────
 
-document.getElementById("export-pdf").addEventListener("click", () => {
-  const printContent = document.getElementById("pagos").outerHTML;
+document.getElementById("export-pdf")?.addEventListener("click", () => {
+  const printContent = document.getElementById("pagos")?.outerHTML || '';
 
   const printWindow = window.open("", "_blank");
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Pagos - Banca Conjunta</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          .cards-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-          .card { border: 1px solid #ddd; padding: 12px; border-radius: 8px; background: #f9f9f9; page-break-inside: avoid; }
-          h1 { text-align: center; }
-        </style>
-      </head>
-      <body>
-        <h1>Pagos - Banca Conjunta</h1>
-        ${printContent}
-      </body>
-    </html>
-  `);
-  printWindow.document.close();
-  printWindow.focus();
-  setTimeout(() => printWindow.print(), 500);
+  if (printWindow) {
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Pagos - Banca Conjunta</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            .cards-container { display: flex; flex-wrap: wrap; gap: 15px; }
+            .card { border: 1px solid #ddd; padding: 12px; border-radius: 8px; background: #f9f9f9; page-break-inside: avoid; width: 220px; }
+            h1 { text-align: center; }
+          </style>
+        </head>
+        <body>
+          <h1>Pagos - Banca Conjunta</h1>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => printWindow.print(), 500);
+  }
 });
 
-// -------------------- TEMA CLARO/ESCURO --------------------
+// ────────────────────────────────────────────────
+// TEMA
+// ────────────────────────────────────────────────
 
 function toggleTheme() {
   document.body.classList.toggle("dark-mode");
   const isDark = document.body.classList.contains("dark-mode");
-  
-  // Muda o src da imagem com base no estado
-  const themeIcon = document.getElementById("theme-icon");
-  if (isDark) {
-    themeIcon.src = "./assets/moon.svg"; // Estado dark: mostra switch off/lua
-  } else {
-    themeIcon.src = "./assets/sun.svg"; // Estado light: mostra switch on/sol
+  const icon = document.getElementById("theme-icon");
+
+  if (icon) {
+    icon.src = isDark ? "assets/sun.svg" : "assets/moon.svg";
+    icon.alt = isDark ? "Modo claro" : "Modo escuro";
   }
-  
-  
+
+  document.querySelectorAll(".card").forEach(card => {
+    atualizarCorCard(card);
+  });
+
   localStorage.setItem("theme", isDark ? "dark" : "light");
 }
 
 function loadTheme() {
   const theme = localStorage.getItem("theme");
+  const icon = document.getElementById("theme-icon");
+
   if (theme === "dark") {
     document.body.classList.add("dark-mode");
-    document.getElementById("theme-icon").src = "./assets/moon.svg";
+    if (icon) {
+      icon.src = "assets/sun.svg";
+      icon.alt = "Modo claro";
+    }
   } else {
-    document.getElementById("theme-icon").src = "./assets/sun.svg";
+    if (icon) {
+      icon.src = "assets/moon.svg";
+      icon.alt = "Modo escuro";
+    }
+  }
+
+  document.querySelectorAll(".card").forEach(card => {
+    atualizarCorCard(card);
+  });
+}
+
+// ────────────────────────────────────────────────
+// RESETAR DADOS
+// ────────────────────────────────────────────────
+
+function resetarTodosDados() {
+  if (confirm("Tem certeza que deseja apagar TODOS os dados salvos?")) {
+    localStorage.clear();
+    location.reload();
   }
 }
-// Inicializa
+
+// ────────────────────────────────────────────────
+// INICIALIZA
+// ────────────────────────────────────────────────
+
 document.addEventListener("DOMContentLoaded", () => {
   configurarColunas();
   carregarEstado();
   loadTheme();
-  document.getElementById("toggle-theme").addEventListener("click", toggleTheme);
+  document.getElementById("toggle-theme")?.addEventListener("click", toggleTheme);
 });
