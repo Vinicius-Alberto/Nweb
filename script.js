@@ -1,5 +1,4 @@
-// Organizador de Banca Conjunta - versão 2026.7 (Precisão total de centavos + parseValor corrigido)
-// Pesquisa corrigida em 25/02/2026 para funcionar com novo layout do card
+// Organizador de Banca Conjunta 
 
 const varal = document.getElementById("varal");
 const andamento = document.getElementById("andamento");
@@ -120,7 +119,7 @@ function atualizarSaldos() {
 // ────────────────────────────────────────────────
 
 if (searchBar) {
-  searchBar.addEventListener("input", () => {   // ← "input" é melhor que "keyup" (pega colar, voz, etc)
+  searchBar.addEventListener("input", () => {   // 
     const termo = searchBar.value.toLowerCase().trim();
 
     document.querySelectorAll(".card").forEach(card => {
@@ -181,7 +180,7 @@ function salvarEstado() {
 
 function extrairDadosDoCard(card) {
   const id = card.dataset.id;
-  const nome = card.querySelector(".card-header-name")?.textContent?.trim() || "";  // ← aqui estava o erro
+  const nome = card.querySelector(".card-header-name")?.textContent?.trim() || "";  // 
   const motivo = card.querySelector(".motivo")?.textContent?.trim() || "Não informado";
 
   const mandouCentavos = toCentavos(parseValor(card.querySelector(".mandou-valor")?.textContent || "0"));
@@ -256,7 +255,7 @@ function gerarCards() {
 }
 
 // ────────────────────────────────────────────────
-// CRIAR CARD (seu layout atual mantido)
+// CRIAR CARD 
 // ────────────────────────────────────────────────
 
 function criarCard(dados) {
@@ -604,7 +603,7 @@ function toggleTheme() {
   const icon = document.getElementById("theme-icon");
 
   if (icon) {
-    icon.src = isDark ? "assets/sun.svg" : "assets/moon.svg";
+    icon.src = isDark ? "assets/moon.svg" : "assets/sun.svg";
     icon.alt = isDark ? "Modo claro" : "Modo escuro";
   }
 
@@ -622,12 +621,12 @@ function loadTheme() {
   if (theme === "dark") {
     document.body.classList.add("dark-mode");
     if (icon) {
-      icon.src = "assets/sun.svg";
+      icon.src = "assets/moon.svg";
       icon.alt = "Modo claro";
     }
   } else {
     if (icon) {
-      icon.src = "assets/moon.svg";
+      icon.src = "assets/sun.svg";
       icon.alt = "Modo escuro";
     }
   }
